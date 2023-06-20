@@ -36,7 +36,7 @@ const homeHostSchema =new mongoose.Schema({
 		// required:true
 
 	},
-	Address :{
+	Dist:{
 		type : String
 		// required: true
 	},

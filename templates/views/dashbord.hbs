@@ -5,17 +5,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashbord</title>
+  <title>Admin Dashbord</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  {{!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" /> --}}
   <style>
     body {
       font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 
     }
+	.container{
+		display: flex;
+		margin: 5px;
+		justify-content: space-around;
+	}
+	button{
+		background-color: #ff385c;
+		display: block;
+		color: aliceblue;
+		border: none;
+		margin: 10px;
+		border-radius: 50px;
+		padding: 7px;
+	}
+	.ebtn{
+		padding-right: 10px;
+		padding-left: 10px;
+		justify-content: center;
+		
+	}
+	
 
     img {
       height: 150px;
+	  border-radius: 20px;
     }
 
     h1 {
@@ -75,7 +97,7 @@
             <h1 class="fs-1">Admin Dashbord</h1>
           </a>   
 
-          <ul class="nav nav-pills al">
+          <ul class="nav nav-pills mx-5">
             <li class="nav-item"><a href="/dashbord" class="btn btn-danger p-2" aria-current="page">Home</a></li>
             <li class="nav-item"><a href="/homehost" class="btn btn-success p-2 mx-2">Add Home</a></li>
           </ul>
@@ -90,42 +112,126 @@
   </div>
 
   <div class="container-fluid">
-    <table class="table table-striped text-center">
+    <table class="table table-striped ">
       <thead>
-        <tr class="table-danger p-4">
-          <th class="text-center id p-4">ID</th>
+        <tr class="table-danger  p-4 ">
+          
           <th class="text-center p-4">Image</th>
-          <th class="text-center p-4">Name</th>
-          <th class="text-center headprice p-4">Price</th>
-          <th class="text-center p-4">Action</th>
+          <th class="text-center p-4">Home Data</th>
+          
+          <th class=" p-4 ">Action</th>
         </tr>
       </thead>
-      <tbody>
-        
-       
-        
-        <tr class="align-middle">
-          <td class="float-left id">
-            644b883d285d1d1a51d58b14
-          </td>
-          <td><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2VwiQIYqNTUXl7IatCQ4EXZHtl8B1s5zbzPb2qVg71_zFj0fcEeTkZXiF&amp;s=10" width="150" class="rounded "></td>
-          <td class="name">
-            My home
-          </td>
-          <td class="price">
-            12,300/-
-          </td>
-          <td>
-            <a href="/edithome/644b883d285d1d1a51d58b14" class="text-success"><i class="fas fa-edit fa-lg mx-1"></i></a>
-
-            <a href="/delete/644b883d285d1d1a51d58b14" class="text-danger"><i class="fas fa-trash fa-lg mx-1"></i></a>
-          </td>
-        </tr>
-        
-      </tbody>
+    
     </table>
   </div>
+
+<div id="newbox"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+  <script>
+  async function getdata(){
+ var Hoteldata = await fetch("http://localhost:3200/users")
+ var data2 = await Hoteldata.json()
+ apenddata(data2.Hotels)
+
+}
+getdata()
+
+function apenddata(data){
+	
+	document.getElementById("newbox").innerHTML=null;
+
+
+   data.map(ele=>{
+    let container1 = document.createElement("div")
+	container1.classList.add("container")
+
+
+	let image = document.createElement("img")
+	image.src = ele.Image
+
+	let container = document.createElement("div")
+	container.classList.add("body")
+	
+
+	let id = document.createElement("b")
+	id.innerText=ele._id 
+
+	let para = document.createElement('p')
+	para.innerText= ele.Propertyname
+
+	let heading = document.createElement("h6")
+	heading.innerText=ele.Dist +`,`+ ele.Country
+
+	let price = document.createElement("b")
+	price.innerHTML = ele.Price +` ₹ ` 
+   
+   let allButton = document.createElement("div")
+   allButton.classList.add("myButton")
+
+   let editBtn = document.createElement("button")
+   editBtn.innerHTML= "<span class=ebtn>Edit</span>"
+   editBtn.style.background="green"
+   editBtn.onclick = function() {
+	localStorage.setItem("Hotel",JSON.stringify(ele))
+  window.location.href = '/edithome';
+};
+
+ let updatedData= {
+	Price:1999,
+   } 
+
+
+     editBtn.addEventListener("click",async()=>{
+		let res = await fetch(`http://localhost:3200/users/${ele._id}`,{
+			method: "PATCH",
+            headers: 
+			{
+              "Content-Type": "application/json",
+			  },
+			  body:JSON.stringify(updatedData)
+			  }
+			  )
+			  console.log(res)
+	 getdata()
+	})
+
+
+	let delBtn = document.createElement("button")
+     delBtn.innerText ="Delete"
+
+    delBtn.addEventListener("click",async()=>{
+		let res = await fetch(`http://localhost:3200/users/${ele._id}`,{
+			method: "DELETE",
+            headers: 
+			{
+              "Content-Type": "application/json",
+			  }
+			  }
+			  )
+			  console.log(res)
+	 getdata()
+	})
+
+
+console.log(ele._id)
+
+    
+   container.append(id,para,heading,price)
+   allButton.append(editBtn,delBtn)
+	container1.append(image,container,allButton)
+  document.getElementById("newbox").append(container1)
+ 
+
+
+   })
+}
+
+
+
+  </script>
 </body>
 
 </html>

@@ -11,6 +11,8 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 const path =require('path')
 const hbs = require('hbs')
+const bcrypt = require("bcryptjs");
+const { error } = require('console');
 const template_path = path.join(__dirname,'../templates/views')  
 const partials_path = path.join(__dirname,"../templates/partials")
 app.set("view engine", "hbs")
@@ -18,6 +20,7 @@ app.set('views',template_path)
 hbs.registerPartials(partials_path)
 const static_path = path.join(__dirname, "./public" )
 app.use(express.static(static_path));
+
 app.get('/',(req,res)=>{
 	res.render('index')
 }) 
@@ -36,6 +39,45 @@ app.get('/index',(req,res)=>{
 })
 app.get('/homehost',(req,res)=>{
 	res.render('homehost')
+})
+
+app.get('/edithome',(req,res)=>{
+	res.render('edithome')
+})
+// get data from mongodb
+
+app.get('/users',async(req,res)=>{
+	try{
+const Hotels = await HostRagister.find().lean().exec()
+ res.status(200).json({Hotels})
+
+
+	}
+	catch(error){ 
+res.status(401).json(error.message)
+	}
+})
+   // delete home data for admin 
+app.delete("/users/:id", async(req,res) => {
+	try{
+		const Hotels = await HostRagister.findByIdAndDelete(req.params.id)
+		res.send(Hotels)
+
+	}
+	catch(error){ 
+		res.status(401).json(error.message)
+			}
+})
+    // Edit Home data for admin
+app.patch("/users/:id", async(req,res) => {
+	try{
+		const Hotels = await HostRagister.findByIdAndUpdate(req.params.id,req.body)
+		res.send(Hotels)
+
+	}
+	catch(error){ 
+		res.status(401).json(error.message)
+			}
 })
 
 //   Registration data
@@ -68,14 +110,29 @@ try{
 app.post("/login",async(req,res)=>{
 	try{
    const email = req.body.email;
-   const Password= req.body.password
+   const Password =req.body.password
    const useremail = await Register.findOne({email:email});
-  
-     if(useremail.password===Password){
-		res.status(201).render('login')
-	 }else{
+
+   bcrypt
+      .compare(req.body.password, useremail.password)
+      .then(result => {
+        console.log(result) // return true
+     res.status(201).render('login')
+ 
+
+      })
+      .catch(err => {
+		console.error(err.message)
 		res.send("password not matched")
-	 }
+	})
+	  
+    //  if(useremail.password===Password){
+
+
+	// 	res.status(201).render('login') 
+	//  }else{
+	// 	res.send("password not matched")
+	//  }
 	}catch(error){
 		res.status(400).send("invalid email")
 
@@ -88,11 +145,23 @@ const email = req.body.adminemail;
 const password=req.body.adminpsw;
 const adminemail = await Register.findOne({email:email});
 
-   if(adminemail.password===password){
-	res.status(201).render("dashbord")
-   }else{
-	res.send("password not match")
-}
+bcrypt
+.compare(req.body.adminpsw, adminemail.password)
+.then(result => {
+  console.log(result) // return true
+res.status(201).render('dashbord')
+
+})
+.catch(err => {
+  console.error(err.message)
+  res.send("password not matched")
+})
+
+//    if(adminemail.password===password){
+// 	res.status(201).render("dashbord")
+//    }else{
+// 	res.send("password not match")
+// }
 }catch(error){
 		res.send(400).send('invalid email')
 
@@ -113,7 +182,7 @@ app.post("/hosthome", async(req,res)=>{
 				Bed:req.body. bed,
 				Bathrooms:req.body.bathrooms,
 				 Image:req.body.image,
-				Address:req.body.address,
+				Dist:req.body.dist,
 				Policy:req.body.policy
 				
 			});
@@ -122,7 +191,7 @@ app.post("/hosthome", async(req,res)=>{
 
 		const hostdatafetch =await HostRagister.find({})
 		console.log(hostdatafetch)
-
+    
 
 			res.status(201).render("index",{data:hostdatafetch})
 	     }catch (error){
@@ -130,13 +199,8 @@ app.post("/hosthome", async(req,res)=>{
 		res.status(400).send (error)
 	}
 	})
-
-
-
-
-
-
+       
 
 app.listen(port,()=>{
-	console.log('server started')
+	console.log('server started 3200')
 })
